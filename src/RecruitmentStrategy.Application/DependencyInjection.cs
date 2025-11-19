@@ -21,9 +21,12 @@ public static class DependencyInjection
         services.AddMediatR(cfg => 
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 
-        // Register all strategy implementations
-        services.AddScoped<IRecruitmentSpecificRulesStrategy, ProcessAStrategy>();
-        services.AddScoped<IRecruitmentSpecificRulesStrategy, ProcessBStrategy>();
+        // Register all strategy implementations using Scrutor
+        services.Scan(scan => scan
+            .FromAssemblyOf<IRecruitmentSpecificRulesStrategy>()
+            .AddClasses(classes => classes.AssignableTo<IRecruitmentSpecificRulesStrategy>())
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
         
         // Register the generic handler for base command
         services.AddScoped<IRequestHandler<RecruitmentBaseCommand, RecruitmentResult>, RecruitmentCommandHandler>();
